@@ -1,6 +1,6 @@
 all: build
 
-PREFIX?=gcr.io/google_containers
+PREFIX?=monzo
 FLAGS=
 ARCH?=amd64
 ALL_ARCHITECTURES=amd64 arm arm64 ppc64le s390x
@@ -23,7 +23,7 @@ REPO_DIR:=$(shell pwd)
 endif
 
 # You can set this variable for testing and the built image will also be tagged with this name
-OVERRIDE_IMAGE_NAME?=
+OVERRIDE_IMAGE_NAME?=442690283804.dkr.ecr.eu-west-1.amazonaws.com/build_ecr:monzo-heapster-v1.5.0-statsd-beta
 
 # If this session isn't interactive, then we don't want to allocate a
 # TTY, which would fail, but if it is interactive, we do want to attach
@@ -77,10 +77,12 @@ container:
 ifneq ($(OVERRIDE_IMAGE_NAME),)
 	docker tag $(PREFIX)/heapster-$(ARCH):$(VERSION) $(OVERRIDE_IMAGE_NAME)
 endif
-
 ifndef DOCKER_IN_DOCKER
 	rm -rf $(TEMP_DIR)
 endif
+
+monzo-ecr-push:
+	docker push $(OVERRIDE_IMAGE_NAME)
 
 do-push:
 	docker push $(PREFIX)/heapster-$(ARCH):$(VERSION)
@@ -126,4 +128,4 @@ clean:
 	rm -f heapster
 	rm -f eventer
 
-.PHONY: all build sanitize test-unit test-unit-cov test-integration container grafana influxdb clean
+.PHONY: all build sanitize test-unit test-unit-cov test-integration container grafana influxdb clean monzo-ecr-push
